@@ -26,3 +26,4 @@ iptables -A FORWARD -o wg0 -j ACCEPT;
 
 module.exports.WG_PRE_DOWN = process.env.WG_PRE_DOWN || '';
 module.exports.WG_POST_DOWN = process.env.WG_POST_DOWN || '';
+module.exports.WG_SSH_PROXY_CMD = process.env.WG_SSH_PROXY_HOST ? 'ssh ' + process.env.WG_SSH_PROXY_HOST + ' ' : '';

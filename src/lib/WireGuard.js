@@ -23,6 +23,7 @@ const {
   WG_POST_UP,
   WG_PRE_DOWN,
   WG_POST_DOWN,
+  WG_SSH_PROXY_CMD,
 } = require('../config');
 
 module.exports = class WireGuard {
@@ -59,8 +60,8 @@ module.exports = class WireGuard {
         }
 
         await this.__saveConfig(config);
-        await Util.exec('wg-quick down wg0').catch(() => { });
-        await Util.exec('wg-quick up wg0').catch(err => {
+        await Util.exec(WG_SSH_PROXY_CMD + 'wg-quick down wg0').catch(() => { });
+        await Util.exec(WG_SSH_PROXY_CMD + 'wg-quick up wg0').catch(err => {
           if (err && err.message && err.message.includes('Cannot find device "wg0"')) {
             throw new Error('WireGuard exited with the error: Cannot find device "wg0"\nThis usually means that your host\'s kernel does not support WireGuard!');
           }
@@ -126,7 +127,7 @@ PublicKey = ${client.publicKey}
 
   async __syncConfig() {
     debug('Config syncing...');
-    await Util.exec('wg syncconf wg0 <(wg-quick strip wg0)');
+    await Util.exec(WG_SSH_PROXY_CMD ? WG_SSH_PROXY_CMD + '"wg syncconf wg0 <(wg-quick strip wg0)"' : 'wg syncconf wg0 <(wg-quick strip wg0)');
     debug('Config synced.');
   }
 
@@ -149,7 +150,7 @@ PublicKey = ${client.publicKey}
     }));
 
     // Loop WireGuard status
-    const dump = await Util.exec('wg show wg0 dump', {
+    const dump = await Util.exec(WG_SSH_PROXY_CMD + 'wg show wg0 dump', {
       log: false,
     });
     dump
